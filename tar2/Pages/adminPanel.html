@@ -1,0 +1,252 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <link href="../css/datatable.css" rel="stylesheet" />
+    <link href="../css/style.css" rel="stylesheet" />
+    <link href="../css/ie6.css" rel="stylesheet" />
+    <link href="../Content/myCSS.css" rel="stylesheet" />
+
+
+
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+
+    <script src="../Scripts/ajaxCalls.js"></script>
+    <script>
+        $(document).ready(function () {
+            // replace it with your own key
+            key = "1c107f2bd2f3fc2aee24aa4f2f8d8647";
+            url = "https://api.themoviedb.org/";
+            imagePath = "https://image.tmdb.org/t/p/w500/";
+            $("#user").html("Hello " + JSON.parse(localStorage.getItem('user')).Name);
+            getUserInfo();
+            getSeriesInfo();
+            getEpisodeInfo();
+        });
+
+        //--------------------------------------//
+        //get all the user data//
+        //--------------------------------------//
+        function getUserInfo() {
+            let apiCall = '../api/User';
+            ajaxCall("GET", apiCall, "", getUsersSuccessCB, getUsersErrorCB);
+            return false;
+        }
+
+        //--------------------------------------//
+        //take the user data and render it to the DataTable//
+        //--------------------------------------//
+        function getUsersSuccessCB(userList) {
+            try {
+                tbl = $('#userTable').DataTable({
+                    data: userList,
+                    pageLength: 5,
+                    columns: [
+                        { data: "Id" },
+                        { data: "Name" },
+                        { data: "LastName" },
+                        { data: "Sex" },
+                        { data: "Mail" },
+                        { data: "Password" },
+                        { data: "PhoneNum" },
+                        { data: "YearOfBirth" },
+                        { data: "FavGenre" },
+                        { data: "Address" },
+                        { data: "IsAdmin" }
+
+                    ],
+                });
+
+
+            }
+
+            catch (err) {
+                console.log(err);
+            }
+        }
+        function getUsersErrorCB(err) {
+            console.log(err);
+        }
+
+        //--------------------------------------//
+        //get all the Series data//
+        //--------------------------------------//
+        function getSeriesInfo() {
+            let apiCall = '../api/Series';
+            ajaxCall("GET", apiCall, "", getSeriesSuccessCB, getSeriesErrorCB);
+            return false;
+        }
+
+        //--------------------------------------//
+        //take the series data and render it to the DataTable//
+        //--------------------------------------//
+        function getSeriesSuccessCB(seriesList) {
+            try {
+                tbl = $('#seriesTable').DataTable({
+                    data: seriesList,
+                    pageLength: 5,
+                    columns: [
+                        { data: "Id" },
+                        { data: "Name" },
+                        { data: "First_air_date" },
+                        { data: "Origin_country" },
+                        { data: "Original_language" },
+                        { data: "Popularity" },
+                        { data: "Likes" }
+
+                    ],
+                });
+
+            }
+
+            catch (err) {
+                console.log(err);
+            }
+        }
+
+        function getSeriesErrorCB(err) {
+            console.log(err);
+        }
+
+        //--------------------------------------//
+        //get all the Episodes data//
+        //--------------------------------------//
+        function getEpisodeInfo() {
+            let apiCall = '../api/Episodes';
+            ajaxCall("GET", apiCall, "", getEpisodeSuccessCB, getEpisodeErrorCB);
+            return false;
+        }
+
+        //--------------------------------------//
+        //take the episode data and render it to the DataTable//
+        //--------------------------------------//
+        function getEpisodeSuccessCB(episodeList) {
+            try {
+                tbl = $('#episodesTable').DataTable({
+                    data: episodeList,
+                    pageLength: 5,
+                    columns: [
+                        { data: "Id" },
+                        { data: "SeriesId" },
+                        { data: "Name" },
+                        { data: "NameOfEp" },
+                        { data: "NumOfSeason" },
+                        { data: "Date" },
+                        { data: "LikeCount" },
+
+                    ],
+                });
+
+            }
+
+            catch (err) {
+                console.log(err);
+            }
+        }
+        function getEpisodeErrorCB(err) {
+            console.log(err)
+        }
+
+        //--------------------------------------//
+        //a function to handle logout.
+        //--------------------------------------//
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index1.html';
+        }
+    </script>
+</head>
+<body>
+    <!-- START PAGE SOURCE -->
+    <div id="shell">
+        <div id="header">
+            <h1 id="logo"><a href="#">MovieHunter</a></h1>
+
+            <div id="navigation">
+                <ul>
+                    <li><a class="active" href="index1.html">HOME</a></li>
+                    <li> <a onclick="logout()" id="logoutBtn">Log Out</a></li>
+                </ul>
+                <ul>
+                    <li id="user"></li>
+
+                </ul>
+
+            </div>
+            <div id="sub-navigation">
+            </div>
+        </div>
+        <br />
+        <br />
+        <div id="main">
+            <div id="container" style="text-align:center;color:white">
+                <h2 style="font-size:30px;">Users data</h2>
+                <table id="userTable" class="display nowrap badge">
+                    <thead>
+                        <tr>
+                            <th>User Id</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Gender</th>
+                            <th>E-Mail</th>
+                            <th>Password</th>
+                            <th>Phone Number</th>
+                            <th>Year Of Birth</th>
+                            <th>Favorite Genre</th>
+                            <th>Address</th>
+                            <th>Is Admin?</th>
+                        </tr>
+                    </thead>
+                </table>
+                <br />
+                <br />
+                <h2 style="font-size:30px;">Series data</h2>
+                <table id="seriesTable" class="display nowrap badge">
+                    <thead>
+                        <tr>
+                            <th>Series Id</th>
+                            <th>Name</th>
+                            <th>First_air_date</th>
+                            <th>Origin Country</th>
+                            <th>Original Language</th>
+                            <th>Popularity</th>
+                            <th>Likes</th>
+                        </tr>
+                    </thead>
+                </table>
+                <br />
+                <br />
+                <h2 style="font-size:30px;">Episodes data</h2>
+                <table id="episodesTable" class="display nowrap badge">
+                    <thead>
+                        <tr>
+                            <th>Episode Id</th>
+                            <th>Series Id</th>
+                            <th>Name</th>
+                            <th>Name Of Episode</th>
+                            <th>Number Of Season</th>
+                            <th>Date</th>
+                            <th>Likes</th>
+                        </tr>
+                    </thead>
+                </table>
+                <br />
+                <br />
+            </div>
+            <br /><br />
+        </div>
+    </div>
+    <!-- END PAGE SOURCE -->
+</body>
+</html>

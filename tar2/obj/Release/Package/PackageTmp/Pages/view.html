@@ -1,0 +1,196 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <link href="../css/style.css" rel="stylesheet" />
+    <link href="../css/ie6.css" rel="stylesheet" />
+    <link href="../Content/myCSS.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+            crossorigin="anonymous">
+    </script>
+
+    <script src="../Scripts/ajaxCalls.js"></script>
+    <script>
+        $(document).ready(function () {
+            // replace it with your own key
+            key = "1c107f2bd2f3fc2aee24aa4f2f8d8647";
+            url = "https://api.themoviedb.org/";
+            imagePath = "https://image.tmdb.org/t/p/w500/";
+            // 64467
+            // 1416
+            $("#user").html("Hello " + JSON.parse(localStorage.getItem('user')).Name);
+            //
+            getEpisodeData();
+        });
+
+        //--------------------------------------//
+        //Gets favorite episodes data.
+        //--------------------------------------//
+        function getEpisodeData() {
+            let apiCall = '../api/Episodes?id=' + JSON.parse(localStorage.getItem('user')).Id;
+            ajaxCall("GET", apiCall, "", getTvShowsSuccessCB, getTvShowsErrorCB)
+        }
+        //--------------------------------------//
+        //Gets favorite actors data.
+        //--------------------------------------//
+        function getActorsData() {
+            let apiCall1 = '../api/Actor?id=' + JSON.parse(localStorage.getItem('user')).Id;
+            ajaxCall("GET", apiCall1, "", getActorsSuccessCB, getActorsErrorCB)
+        }
+        //--------------------------------------//
+        //renders actors button.
+        //--------------------------------------//
+        function renderActorBtn(actor) {
+            $("#container").append(`<button type="button" onclick='getActorsData()' class='btn btn-dark'>Show Favorite Actors</button>`)
+        }
+        function getActorsErrorCB(err) {
+            console.log(err);
+        }
+
+        //--------------------------------------//
+        //rendering the episode names to the select
+        //--------------------------------------//
+        function getTvShowsSuccessCB(tvShows) {
+            $("#container").html("");
+            $("#container").append("<select id='tvSelect' class='btn btn-dark' onchange='renderShow(this.value);'></select>");
+            $('#tvSelect').append("<option value=-1>Select</option>");
+            let temp = [];
+            if (tvShows != null) {
+                for (let i = 0; i < tvShows.length; i++) {
+                    if (!temp.includes(tvShows[i].Name)) {
+                        temp.push(tvShows[i].Name);
+                        $("#tvSelect").append("<option value='" + tvShows[i].Name + "'>" + temp[temp.length - 1] + "</option>");
+                    }
+                }
+            }
+            renderActorBtn();
+
+        }
+        function getTvShowsErrorCB(err) {
+            console.log(err);
+        }
+
+        //--------------------------------------//
+        //rendering all the actor data
+        //--------------------------------------//
+        function getActorsSuccessCB(actor) {
+            let str = "";
+            let genderStr = "";
+            for (let i = 0; i < actor.length; i++) {
+                if (actor[i].Gender == 2) {
+                    genderStr = "Male";
+                }
+                else {
+                    genderStr = "Female";
+                }
+                str += `<article class="search-result row border rounded" >
+                                                    <div class="col-xs-12 col-sm-12 col-md-3">
+                                                        <a href="#"  class="thumbnail"><img style="max-height:100%;max-width:100%;" src="${actor[i].Picture}"  /></a>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-12 col-md-2">
+                                                        <ul class="meta-search">
+                                                            <i class="fa fa-star"></i> <span>${actor[i].Popularity}/10.0</span><br/>
+                                                            <i class="fa fa-mars-double"></i> <span>${genderStr}</span><br/>
+
+                                                        </ul>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-12 col-md-7 excerpet">
+                                                        <h2>${actor[i].Name}</h2>
+                                                    </div>
+                                                    <span class="clearfix borda"></span>
+
+                                                </article><br/>`
+
+            }
+            $('#episodes').html(str);
+        }
+
+        //--------------------------------------//
+        //get selected tv show to render.
+        //--------------------------------------//
+        function renderShow(value) {
+            let apiCall = '../api/Episodes?tvName=' + value + "&id=" + JSON.parse(localStorage.getItem('user')).Id;
+            ajaxCall("GET", apiCall, "", renderShowSuccessCB, renderShowErrorCB)
+        }
+
+        //--------------------------------------//
+        //after success this method is rendering all the data to the article
+        //--------------------------------------//
+        function renderShowSuccessCB(episode) {
+            let str = '';
+            for (let i = 0; i < episode.length; i++) {
+                str += `<article class="search-result row border rounded" >
+                        <div class="col-xs-12 col-sm-12 col-md-3">
+                            <a href="#"  class="thumbnail"><img style="max-height:100%;max-width:100%;" src="${episode[i].Picture}"  /></a>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-2">
+                            <ul class="meta-search">
+                                <i class="fa fa-calendar"></i> <span>${episode[i].Date}</span><br/>
+                            </ul>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-7 excerpet">
+                            <h2>${episode[i].NameOfEp}</h2>
+                            <p style="color:white;">${episode[i].Description}</p>
+                        </div>
+                        <span class="clearfix borda"></span>
+
+                    </article><br/>`
+            }
+            $('#episodes').html(str);
+            $('#tvSelect').prop('selectedIndex', -1);
+        }
+        function renderShowErrorCB(err) {
+            console.log(err);
+        }
+
+        //--------------------------------------//
+        //a function to handle logout.
+        //--------------------------------------//
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index1.html';
+        }
+    </script>
+
+</head>
+<body>
+
+    <!-- START PAGE SOURCE -->
+    <div id="shell">
+        <div id="header">
+            <h1 id="logo"><a href="#">MovieHunter</a></h1>
+
+            <div id="navigation">
+                <ul>
+                    <li><a class="active" href="index1.html">HOME</a></li>
+                    <li> <a onclick="logout()" id="logoutBtn">Log Out</a></li>
+                </ul>
+                <ul>
+                    <li id="user"></li>
+
+                </ul>
+
+            </div>
+            <div id="sub-navigation">
+               <h2 style="text-align:center;">View your favorite Shows and Actors</h2>
+             
+            </div>
+        </div>
+        <div id="main" >
+            <div id="container"style="text-align:center;color:white;" >
+
+            </div>
+            <br /><br />
+            <div id="episodes" style="text-align:center;color:white;">
+
+            </div>
+        </div>
+
+    </div>
+    <!-- END PAGE SOURCE -->
+</body>
+</html>
